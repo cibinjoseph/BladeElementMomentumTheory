@@ -10,16 +10,16 @@ clear; clc; clf;
 R = 8.0;
 AR = 6.0;                 % Aspect ratio
 c = R/AR;;
-Nb = 1;
-Om_rpm = 600;             % in rpm
+Nb = 2;
+Om_rpm = 1250;            % in rpm
 a = 5.74;                 % d_Cl/d_alpha in radians
 rho = 1.2;                % in kg/m3
 root_cut=0.10;
-tip_cut=0.98;      % For accounting tip loss
-coning=0.0; 
+tip_cut=0.91;             % For accounting tip loss
 vel_climb = 0.0;
+coning=0.0;               % Not accounted for currently
 
-theta=5*pi/180;
+theta=8*pi/180;
 
 % Calculated Rotor Parameters
 sol = Nb*c/(pi*R);
@@ -70,7 +70,10 @@ ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
 CT_BEMT = sum(ct_vec);
 % plot(r_bar,ct_vec.*(rho*pi*R*R*(R*Om)^2))
 
-Thrust=CT_MT*(rho*pi*R*R*(R*Om)^2)
+Thrust = CT_MT*(rho*pi*R*R*(R*Om)^2)
+
+% Sectional lift distribution
+%cl_vec = Thrust/(0.5*rho*c*dr_bar.*R.*(r_bar*R*Om).^2);
 
 % plot(radtodeg(theta),CT,'.')
 % hold on
