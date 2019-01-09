@@ -80,4 +80,4 @@ lam_i=lam;
 % fid=fopen('Vz_OGE_BEMT.dat','w');
 % fprintf(fid,'Variables = "r/R" "vz"\n');
 % fprintf(fid,'Zone T= "Vz_OGE_BEMT"\n');
- dlmwrite('Vz_OGE_BEMT.dat',[r_bar'*R lam_i'*R*Om],'-append','delimiter',' ');
+% dlmwrite('Vz_OGE_BEMT.dat',[r_bar'*R lam_i'*R*Om],'-append','delimiter',' ');
