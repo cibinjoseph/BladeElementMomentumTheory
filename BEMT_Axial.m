@@ -14,8 +14,8 @@ Nb = 2;
 Om_rpm = 1250;            % in rpm
 a = 5.74;                 % d_Cl/d_alpha in radians
 rho = 1.2;                % in kg/m3
-root_cut=0.10;
-tip_cut=0.91;             % For accounting tip loss
+root_cut=0.05;
+tip_cut=0.90;             % For accounting tip loss
 vel_climb = 0.0;
 coning=0.0;               % Not accounted for currently
 
@@ -73,7 +73,7 @@ CT_BEMT = sum(ct_vec);
 Thrust = CT_MT*(rho*pi*R*R*(R*Om)^2)
 
 % Sectional lift distribution
-%cl_vec = Thrust/(0.5*rho*c*dr_bar.*R.*(r_bar*R*Om).^2);
+cl_vec = 2.0*ct_vec/(c/R*dr_bar);
 
 % plot(radtodeg(theta),CT,'.')
 % hold on
