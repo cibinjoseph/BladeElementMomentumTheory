@@ -8,7 +8,8 @@ clear; clc; clf;
 
 % Specified Rotor and Aerodynamic Parameters
 R = 8.0;
-c =1.0;
+AR = 6.0;                 % Aspect ratio
+c = R/AR;;
 Nb = 1;
 Om_rpm = 600;             % in rpm
 a = 5.74;                 % d_Cl/d_alpha in radians
