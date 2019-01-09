@@ -66,7 +66,7 @@ format long;
 CT_MT = sum(ct_vec)
 
 % Using BEMT
-ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
+%ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
 CT_BEMT = sum(ct_vec);
 % plot(r_bar,ct_vec.*(rho*pi*R*R*(R*Om)^2))
 
