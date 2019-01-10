@@ -61,12 +61,12 @@ xlabel('Normalized Radius');
 ylabel('Inflow Ratio');
 
 % Using Momentum theory
-ct_vec = 4*lam.*(lam-lam_c).*r_bar.*dr_bar;
+% ct_vec = 4*lam.*(lam-lam_c).*r_bar.*dr_bar;
 format long;
 CT_MT = sum(ct_vec)
 
 % Using BEMT
-%ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
+ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
 CT_BEMT = sum(ct_vec);
 % plot(r_bar,ct_vec.*(rho*pi*R*R*(R*Om)^2))
 
