@@ -25,13 +25,14 @@ nx = 50;                  % No. of stations along blade
 
 % Feature switches
 spacing_switch = 1;       % [1]Equispaced [2]Cosine [3]aTan
+prandtlTipLoss_switch = 1;
 
 % Calculated Rotor Parameters
 c = R/AR;
 sol = Nb*c/(pi*R);
 theta=theta_deg*pi/180;
 Om = Om_rpm*pi/30;        % in rad per sec
-lam_c = vel_climb/(R*Om);
+lam_climb = vel_climb/(R*Om);
 
 % Spacing blade stations
 switch spacing_switch
@@ -45,8 +46,8 @@ case 2
   % Cosine spaced
   theta_cosine=linspace(0,pi,nx);
   r_bar = R*0.5-R*0.5*cos(theta_cosine);
-  dr_bar=r_bar(1:end-1)-r_bar(2:end);
-  dr_bar=-1*[dr_bar 0];
+  dr_bar=r_bar(2:end)-r_bar(1:end-1);
+  dr_bar=[dr_bar 0];
 
 case 3
   % atan spaced
@@ -57,16 +58,31 @@ case 3
 
 end
 
-const1 = sol*a/16; 
-const_c = lam_c*0.5;
+% Inflow computation
+switch prandtlTipLoss_switch
 
-% Inflow ratio from BEMT
-lam = -(const1-const_c) + sqrt((const1-const_c)^2+2*const1*theta*r_bar);
-phi=lam./r_bar;
-alf=theta-phi;
+case 0
+  % Inflow ratio from BEMT
+  const1 = sol*a/16; 
+  const_c = lam_climb*0.5;
+  lam = -(const1-const_c) + sqrt((const1-const_c)^2+2*const1*theta*r_bar);
+  phi=lam./r_bar;
+  alf=theta-phi;
+  prandtl_F = 1;
+
+case 1
+  prandtl_F = 1;  % Initial value
+  const1 = sol*a/16; 
+  const_c = lam_climb*0.5;
+
+  lam = -(const1./prandtl_F-const_c) + sqrt((const1./prandtl_F-const_c).^2+2*const1./prandtl_F*theta.*r_bar);
+  phi=lam./r_bar;
+  alf=theta-phi;
+
+end
 
 % Using Momentum theory
-ct_vec = 4*lam.*(lam-lam_c).*r_bar.*dr_bar;
+ct_vec = prandtl_F.*4*lam.*(lam-lam_climb).*r_bar.*dr_bar;
 format long;
 CT_MT = sum(ct_vec);
 
