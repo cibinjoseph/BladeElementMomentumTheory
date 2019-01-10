@@ -1,85 +1,122 @@
-#!/usr/bin/octave
-
 clear; clc; clf;
 
 % With collective ONLY
 % No twist, coning
-% Hover flight
+% Hover flight condition
 
-% Specified Rotor and Aerodynamic Parameters
-R = 8.0;
+% Rotor parameters
+R = 1.143;                % in m
 AR = 6.0;                 % Aspect ratio
-c = R/AR;;
 Nb = 2;
 Om_rpm = 1250;            % in rpm
 a = 5.74;                 % d_Cl/d_alpha in radians
+vel_climb = 0.0;          % in m/s
+theta_deg=8;
+
+% For accounting tip loss
+root_cut=0.05;            % r/R
+tip_cut=0.90;             % r/R
+
+% Environment parameters
 rho = 1.2;                % in kg/m3
-root_cut=0.05;
-tip_cut=0.90;             % For accounting tip loss
-vel_climb = 0.0;
-coning=0.0;               % Not accounted for currently
-
-theta=8*pi/180;
-
-% Calculated Rotor Parameters
-sol = Nb*c/(pi*R);
-Om = Om_rpm*pi/30;
-lam_c = vel_climb/(R*Om);
 
 % Solver parameters 
-nx = 50;                    % No. of stations along blade
+nx = 50;                  % No. of stations along blade
 
-% Initialization
-% Equi-spaced
-r_bar = linspace(root_cut,tip_cut,nx);
-dr_bar = r_bar(2)-r_bar(1);
+% Feature switches
+spacing_switch = 1;       % [1]Equispaced [2]Cosine [3]aTan
 
-% Cosine spaced
-%theta_cosine=linspace(0,pi,nx);
-%r_bar = R*0.5-R*0.5*cos(theta_cosine);
-%dr_bar=r_bar(1:end-1)-r_bar(2:end);
-%dr_bar=-1*[dr_bar 0];
+% Calculated Rotor Parameters
+c = R/AR;
+sol = Nb*c/(pi*R);
+theta=theta_deg*pi/180;
+Om = Om_rpm*pi/30;        % in rad per sec
+lam_c = vel_climb/(R*Om);
 
-% atan spaced
-%x_spacing=linspace(tan(-1),tan(1),nx);
-%r_bar=R*0.5+R*0.5*atan(x_spacing);
-%dr_bar=r_bar(2:end)-r_bar(1:end-1);
-%dr_bar=[dr_bar 0];
+% Spacing blade stations
+switch spacing_switch
+
+case 1
+  % Equi-spaced
+  r_bar = linspace(root_cut,tip_cut,nx);
+  dr_bar = (r_bar(2)-r_bar(1))*ones(size(r_bar));
+
+case 2
+  % Cosine spaced
+  theta_cosine=linspace(0,pi,nx);
+  r_bar = R*0.5-R*0.5*cos(theta_cosine);
+  dr_bar=r_bar(1:end-1)-r_bar(2:end);
+  dr_bar=-1*[dr_bar 0];
+
+case 3
+  % atan spaced
+  x_spacing=linspace(tan(-1),tan(1),nx);
+  r_bar=R*0.5+R*0.5*atan(x_spacing);
+  dr_bar=r_bar(2:end)-r_bar(1:end-1);
+  dr_bar=[dr_bar 0];
+
+end
 
 const1 = sol*a/16; 
 const_c = lam_c*0.5;
 
-% for theta=degtorad(10:0.1:12)
-
 % Inflow ratio from BEMT
 lam = -(const1-const_c) + sqrt((const1-const_c)^2+2*const1*theta*r_bar);
-alf=theta-lam./r_bar;
-
-plot(r_bar,lam);
-grid on;
-xlabel('Normalized Radius');
-ylabel('Inflow Ratio');
+phi=lam./r_bar;
+alf=theta-phi;
 
 % Using Momentum theory
-% ct_vec = 4*lam.*(lam-lam_c).*r_bar.*dr_bar;
+ct_vec = 4*lam.*(lam-lam_c).*r_bar.*dr_bar;
 format long;
-CT_MT = sum(ct_vec)
+CT_MT = sum(ct_vec);
 
 % Using BEMT
 ct_vec = 0.5*sol*a.*dr_bar.*(r_bar.^2).*alf;
 CT_BEMT = sum(ct_vec);
-% plot(r_bar,ct_vec.*(rho*pi*R*R*(R*Om)^2))
 
-Thrust = CT_MT*(rho*pi*R*R*(R*Om)^2)
+Thrust = CT_MT*(rho*pi*R*R*(R*Om)^2);
+
+% Check between MT and BEMT
+if (CT_MT-CT_BEMT)>eps
+  warning('Warning: Discrepancy between CT calculated using BEMT and MT')
+end
 
 % Sectional lift distribution
 cl_vec = 2.0*ct_vec/(c/R*dr_bar);
 
-% plot(radtodeg(theta),CT,'.')
-% hold on
-% end
-% grid on
-lam_i=lam;
+% Results
+fprintf('\nColl. pitch (deg) = %d\n',theta_deg);
+fprintf('Solidity = %d\n\n',sol);
+fprintf('CT = %12.6f\n',CT_BEMT);
+fprintf('Thrust (N) = %d\n',Thrust);
+
+% Generate plots
+subplot(2,2,1);
+plot(r_bar,lam,'k');
+grid on;
+xlabel('r/R');
+ylabel('Inflow Ratio');
+
+subplot(2,2,2);
+plot(r_bar,ct_vec,'k');
+grid on;
+xlabel('r/R');
+ylabel('Sectional CT');
+
+subplot(2,2,3);
+plot(r_bar,alf*180/pi,'k');
+grid on;
+xlabel('r/R');
+ylabel('Alpha (deg)');
+
+subplot(2,2,4);
+plot(r_bar,alf*a,'k');
+grid on;
+xlabel('r/R');
+ylabel('Sectional CL');
+
+% Write to file
+%lam_i=lam;
 % fid=fopen('Vz_OGE_BEMT.dat','w');
 % fprintf(fid,'Variables = "r/R" "vz"\n');
 % fprintf(fid,'Zone T= "Vz_OGE_BEMT"\n');
