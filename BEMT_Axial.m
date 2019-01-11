@@ -13,10 +13,6 @@ a = 5.74;                 % d_Cl/d_alpha in radians
 vel_climb = 0.0;          % in m/s
 theta_deg=8;
 
-% For accounting tip loss
-root_cut=0.05;            % r/R
-tip_cut=0.90;             % r/R
-
 % Environment parameters
 rho = 1.2;                % in kg/m3
 
@@ -26,6 +22,10 @@ nx = 50;                  % No. of stations along blade
 % Feature switches
 spacing_switch = 1;       % [1]Equispaced [2]Cosine [3]aTan
 prandtlTipLoss_switch = 1;
+
+% For accounting tip loss
+root_cut=0.001;            % r/R
+tip_cut=0.999;             % r/R
 
 % Calculated Rotor Parameters
 c = R/AR;
@@ -68,21 +68,36 @@ case 0
   lam = -(const1-const_c) + sqrt((const1-const_c)^2+2*const1*theta*r_bar);
   phi=lam./r_bar;
   alf=theta-phi;
-  prandtl_F = 1;
+  prandtl_F = ones(size(r_bar));
 
 case 1
-  prandtl_F = 1;  % Initial value
+  prandtl_F = ones(size(r_bar));  % Initial value
+  prandtl_residual = 1.0;
   const1 = sol*a/16; 
   const_c = lam_climb*0.5;
+  counter = 1;
 
-  lam = -(const1./prandtl_F-const_c) + sqrt((const1./prandtl_F-const_c).^2+2*const1./prandtl_F*theta.*r_bar);
-  phi=lam./r_bar;
-  alf=theta-phi;
+  while ( (prandtl_residual>0.001) && (counter<21) )
+    lam = -(const1./prandtl_F-const_c) + sqrt((const1./prandtl_F-const_c).^2+2*const1./prandtl_F*theta.*r_bar);
+    prandtl_Fsmall = 0.5*Nb*(1.0-r_bar)./lam;
+
+    prandtl_F_prev = prandtl_F;
+    prandtl_F = (2/pi)*acos(exp(-prandtl_Fsmall));
+    prandtl_residual = abs(norm(prandtl_F-prandtl_F_prev));
+    counter = counter+1;
+end
+
+if (counter==21)
+  warning('Prandtl tip-loss factor failed to converge');
+end
+
+phi=lam./r_bar;
+alf=theta-phi;
 
 end
 
 % Using Momentum theory
-ct_vec = prandtl_F.*4*lam.*(lam-lam_climb).*r_bar.*dr_bar;
+ct_vec = prandtl_F.*4.*lam.*(lam-lam_climb).*r_bar.*dr_bar;
 format long;
 CT_MT = sum(ct_vec);
 
@@ -132,8 +147,7 @@ xlabel('r/R');
 ylabel('Sectional CL');
 
 % Write to file
-%lam_i=lam;
 % fid=fopen('Vz_OGE_BEMT.dat','w');
 % fprintf(fid,'Variables = "r/R" "vz"\n');
 % fprintf(fid,'Zone T= "Vz_OGE_BEMT"\n');
-% dlmwrite('Vz_OGE_BEMT.dat',[r_bar'*R lam_i'*R*Om],'-append','delimiter',' ');
+% dlmwrite('Vz_OGE_BEMT.dat',[r_bar'*R lam'*R*Om],'-append','delimiter',' ');
