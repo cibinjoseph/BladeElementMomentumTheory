@@ -24,6 +24,7 @@ spacing_switch = 1;       % [1]Equispaced [2]Cosine [3]aTan
 prandtlTipLoss_switch = 1;
 
 % For accounting tip loss
+% (change accordingly when prandtlTipLoss_switch is 0)
 root_cut=0.001;            % r/R
 tip_cut=0.999;             % r/R
 
