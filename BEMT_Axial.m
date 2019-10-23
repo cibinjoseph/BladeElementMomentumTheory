@@ -6,11 +6,11 @@ clear; clc; clf;
 
 % Rotor parameters
 R = 1.143;                % in m
-AR = 6.0;                 % Aspect ratio
+AR = 6;                % Aspect ratio
 Nb = 2;
-Om_rpm = 1250;            % in rpm
-a = 5.74;                 % d_Cl/d_alpha in radians
-vel_climb = 0.0;          % in m/s
+Om_rpm = 1250;             % in rpm
+a = 2*pi;                 % d_Cl/d_alpha in radians
+vel_climb = 4.068;          % in m/s
 theta_deg=8;
 
 % Environment parameters
@@ -25,7 +25,7 @@ prandtlTipLoss_switch = 1;
 
 % For accounting tip loss
 % (change accordingly when prandtlTipLoss_switch is 0)
-root_cut=0.001;            % r/R
+root_cut=0.01;            % r/R
 tip_cut=0.999;             % r/R
 
 % Calculated Rotor Parameters
