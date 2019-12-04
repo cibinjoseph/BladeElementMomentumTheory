@@ -7,11 +7,11 @@ clear; clc; clf;
 % Rotor parameters
 R = 1.143;                % in m
 AR = 6;                % Aspect ratio
-Nb = 2;
+Nb = 1;
 Om_rpm = 1250;             % in rpm
 a = 2*pi;                 % d_Cl/d_alpha in radians
-vel_climb = 4.068;          % in m/s
-theta_deg=8;
+vel_climb = 3.74;          % in m/s
+theta_deg=5;
 
 % Environment parameters
 rho = 1.2;                % in kg/m3
