@@ -4,13 +4,13 @@ clear; clc; clf;
 % Axial flight condition
 
 % Rotor parameters
-R = 0.3048;                % in m
+R = 0.518;                % in m
 Nb = 2;                    % blade number
-Om_rpm = 6000;             % in rpm
-vel_climb = 18.0;          % in m/s
+Om_rpm = 3000;             % in rpm
+vel_climb = 2.0;          % in m/s
 
-CLa = 4.88; %2*pi;         % d_Cl/d_alpha in radians
-CL0 = 0.470;
+CLa = 2*pi;         % d_Cl/d_alpha in radians
+alpha0_deg = 0.0;
 
 % Selective parameters
 % *** COMMENT OUT UNUSED VARIABLES ***
@@ -18,48 +18,33 @@ CL0 = 0.470;
 % AR = 6;                % Aspect ratio
 % c = 0;
 cByR_dist = [  % as a two-col matrix [r/R  c/R]
-  0.25000   0.08
-  0.29137   0.09842
-  0.32614   0.1119
-  0.35372   0.12106
-  0.38129   0.1295
-  0.41007   0.13746
-  0.43645   0.143
-  0.46763   0.14712
-  0.50360   0.15028
-  0.55276   0.15176
-  0.60911   0.15062
-  0.69305   0.1459
-  0.76259   0.13972
-  0.82734   0.13208
-  0.90048   0.12086
-  1.00000   0.10054
+  0.2	0.116
+  0.3	0.109
+  0.4	0.101
+  0.5	0.094
+  0.6	0.087
+  0.7	0.080
+  0.8	0.072
+  0.9	0.065
+  1.0	0.058
   ];
 % -- theta distribution or constant angle --
 % theta_deg = 8;
 theta_deg_dist = [  % as a two-col matrix [r/R theta]
-  0.25	32.56026
-  0.28037	30.10193
-  0.3007	28.30318
-  0.33182	25.96551
-  0.36413	23.8082
-  0.39287	22.1909
-  0.42521	20.51407
-  0.46234	18.95808
-  0.49709	17.7621
-  0.53783	16.4469
-  0.59416	15.01391
-  0.64569	13.82045
-  0.70084	12.86777
-  0.75599	12.03521
-  0.82912	11.20535
-  0.89987	10.49525
-  1	10.21008
+  0.2	14.97
+  0.3	13.97
+  0.4	12.97
+  0.5	11.97
+  0.6	10.97
+  0.7	9.97
+  0.8	8.97
+  0.9	7.97
+  1.0	6.97
   ]; 
 % ------
 
 % Environment parameters
-rho = 1.2;                % in kg/m3
+rho = 0.022;                % in kg/m3
 
 % Solver parameters 
 nx = 50;                  % No. of stations along blade
@@ -70,7 +55,7 @@ prandtlTipLoss_switch = 1;
 
 % For accounting tip loss
 % (change accordingly when prandtlTipLoss_switch is 0)
-root_cut = 0.25;            % r/R
+root_cut = 0.20;            % r/R
 tip_cut = 0.999;             % r/R
 
 % Spacing blade stations
@@ -114,8 +99,12 @@ elseif (exist('theta_deg_dist') == 1)
   plot(theta_deg_dist(:,1), theta_deg_dist(:,2), 'bo'); hold on;
   plot(r_bar, theta_deg,'r-'); hold off;
 end
+% disp('DBG')
+% disp(polyval(theta_poly, 0.75))
+% disp('DBG END')
+% keyboard
 
-alphaCamber = CL0/CLa;
+alphaCamber = -1.0*alpha0_deg*pi/180.0;
 theta = theta_deg*pi/180 + alphaCamber;  % Corrected for cambered airfoils
 sol = Nb*c/(pi*R);
 Om = Om_rpm*pi/30;        % in rad per sec
