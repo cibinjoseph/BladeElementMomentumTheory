@@ -6,8 +6,10 @@ clear; clc; clf;
 isCustomInput = true;
 
 if isCustomInput
+  fprintf('CUSTOM input files used\n')
   customInput;
 else
+  fprintf('DEFAULT input files used\n')
 
   % Rotor parameters
   R = 0.518;                % in m
