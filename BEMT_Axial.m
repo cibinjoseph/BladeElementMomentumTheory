@@ -3,7 +3,7 @@ clear; clc; clf;
 % With collective ONLY
 % Axial flight condition
 
-isCustomInput = false;
+isCustomInput = true;
 
 if isCustomInput
   customInput;
@@ -175,13 +175,17 @@ if (CT_MT-CT_BEMT)>eps
 end
 
 % Sectional lift distribution
-cl_vec = 2.0*ct_vec/(c./R.*dr_bar);
+cl_vec = 2.0*ct_vec./(sol.*r_bar.*r_bar.*dr_bar);
+[clMax, imx] = max(cl_vec);
+gammaMax = 0.5*clMax*c(imx)*(R*dr_bar(imx))*norm([r_bar(imx) lam(imx)])*R*Om;
 
 % Results
 % fprintf('\nColl. pitch (deg) = %d\n',theta_deg);
 % fprintf('Solidity = %d\n\n',sol);
-fprintf('CT = %12.6f\n',CT_BEMT);
-fprintf('Thrust (N) = %d\n',Thrust);
+fprintf('CT         = %d\n', CT_BEMT);
+fprintf('Thrust (N) = %d\n', Thrust);
+fprintf('CL max     = %d\n', clMax);
+fprintf('Gamma max  = %d\n', gammaMax);
 
 % Generate plots
 subplot(2,2,1);
@@ -191,7 +195,7 @@ xlabel('r/R');
 ylabel('Inflow Ratio');
 
 subplot(2,2,2);
-plot(r_bar,ct_vec,'k');
+plot(r_bar,ct_vec/Nb,'k');
 grid on;
 xlabel('r/R');
 ylabel('Sectional CT');
@@ -203,7 +207,7 @@ xlabel('r/R');
 ylabel('Alpha (deg)');
 
 subplot(2,2,4);
-plot(r_bar,alf*CLa,'k');
+plot(r_bar,(cl_vec),'k');
 grid on;
 xlabel('r/R');
 ylabel('Sectional CL');
