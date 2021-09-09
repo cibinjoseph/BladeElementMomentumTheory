@@ -103,7 +103,11 @@ end
 if (exist('theta_deg') == 1)
   theta_deg = theta_deg*ones(1,nx);
 elseif (exist('theta_deg_dist') == 1)
-  theta_poly = polyfit(theta_deg_dist(:, 1), theta_deg_dist(:, 2), 4);
+  if (size(theta_deg_dist, 1) == 2)
+    theta_poly = polyfit(theta_deg_dist(:, 1), theta_deg_dist(:, 2), 1);
+  else
+    theta_poly = polyfit(theta_deg_dist(:, 1), theta_deg_dist(:, 2), 4);
+  end
   theta_deg = polyval(theta_poly, r_bar);
   plot(theta_deg_dist(:,1), theta_deg_dist(:,2), 'bo'); hold on;
   plot(r_bar, theta_deg,'r-'); hold off;
@@ -162,6 +166,7 @@ end
 
 % Using Momentum theory
 ct_vec = prandtl_F.*4.*lam.*(lam-lam_climb).*r_bar.*dr_bar;
+lamMean = 2.0*trapz(r_bar, lam.*r_bar)/(1-root_cut*root_cut);
 format long;
 CT_MT = sum(ct_vec);
 
@@ -184,10 +189,12 @@ gammaMax = 0.5*clMax*c(imx)*(R*dr_bar(imx))*norm([r_bar(imx) lam(imx)])*R*Om;
 % Results
 % fprintf('\nColl. pitch (deg) = %d\n',theta_deg);
 % fprintf('Solidity = %d\n\n',sol);
-fprintf('CT         = %d\n', CT_BEMT);
-fprintf('Thrust (N) = %d\n', Thrust);
-fprintf('CL max     = %d\n', clMax);
-fprintf('Gamma max  = %d\n', gammaMax);
+fprintf('CT           = %d\n', CT_BEMT);
+fprintf('inflow ratio = %d\n', lamMean);
+fprintf('Thrust (N)   = %d\n', Thrust);
+fprintf('inflow (m/s) = %d\n', lamMean*R*Om);
+fprintf('CL max       = %d\n', clMax);
+fprintf('Gamma max    = %d\n', gammaMax);
 
 % Generate plots
 subplot(2,2,1);
