@@ -3,7 +3,7 @@ clear; clc; clf;
 % With collective ONLY
 % Axial flight condition
 
-isCustomInput = true;
+isCustomInput = false;
 
 if isCustomInput
   fprintf('CUSTOM input files used\n')
